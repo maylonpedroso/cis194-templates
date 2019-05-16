@@ -21,7 +21,15 @@ module Homework01.Basis where
 -- []
 
 toDigits :: Integer -> [Integer]
-toDigits = undefined
+toDigits n
+  | n <= 0 = []
+  | otherwise = toDigits(n `div` 10) ++ [n `mod` 10]
+
+
+toDigitsRev :: [Integer] -> [Integer]
+toDigitsRev [] = []
+toDigitsRev (e:l) = toDigitsRev(l) ++ [e]
+
 
 ----------------------------------------------------------------------
 -- Exercise 2
@@ -35,7 +43,9 @@ toDigits = undefined
 -- [1,4,3]
 
 doubleEveryOther :: [Integer] -> [Integer]
-doubleEveryOther = undefined
+doubleEveryOther [] = []
+doubleEveryOther (x:[]) = [x]
+doubleEveryOther (x:y:l) = x:y*2:doubleEveryOther(l)
 
 ----------------------------------------------------------------------
 -- Exercise 3
@@ -47,7 +57,8 @@ doubleEveryOther = undefined
 -- 22
 
 sumDigits :: [Integer] -> Integer
-sumDigits = undefined
+sumDigits [] = 0
+sumDigits (x:l) = sum(toDigits x) + sumDigits(l)
 
 ----------------------------------------------------------------------
 -- Exercise 4
@@ -61,7 +72,7 @@ sumDigits = undefined
 -- False
 
 validate :: Integer -> Bool
-validate = undefined
+validate n = 0 == sumDigits(doubleEveryOther(toDigitsRev(toDigits(n)))) `mod` 10
 
 ----------------------------------------------------------------------
 -- Exercise 5
@@ -78,4 +89,12 @@ type Move = (Peg, Peg)
 -- [("a","b"),("a","c"),("b","c"),("a","b"),("c","a"),("c","b"),("a","b")]
 
 hanoi :: Integer -> Peg -> Peg -> Peg -> [Move]
-hanoi = undefined
+hanoi 0 a b c = []
+hanoi n a b c = hanoi (n-1) a c b ++ [(a, b)] ++ hanoi (n-1) c b a
+
+-- Hanoi Towers with 4 Pegs
+
+hanoi4 :: Integer -> Peg -> Peg -> Peg -> Peg -> [Move]
+hanoi4 0 a b c d = []
+hanoi4 1 a b c d = [(a, b)]
+hanoi4 n a b c d = hanoi4 (n-2) a d b c ++ [(a, c), (a, b), (b, c)] ++ hanoi4 (n-2) d b a c
