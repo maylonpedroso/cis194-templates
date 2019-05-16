@@ -25,10 +25,18 @@ import Homework02.Log
 -- Unknown "This is not in the right format"
 
 parseMessage :: String -> LogMessage
-parseMessage = undefined
+parseMessage message
+    | logType == "I" = LogMessage Info (logInt 1) (logText 2)
+    | logType == "W" = LogMessage Warning (logInt 1) (logText 2)
+    | logType == "E" = LogMessage (Error (logInt 1)) (logInt 2) (logText 3)
+    | otherwise = Unknown message
+    where messageWords = words message
+          logType = head messageWords
+          logInt n = read (messageWords !! n) :: Int
+          logText n = unwords (drop n messageWords)
 
 parse :: String -> [LogMessage]
-parse = undefined
+parse content = map parseMessage (lines content)
 
 ----------------------------------------------------------------------
 -- Exercise 2
@@ -40,7 +48,12 @@ parse = undefined
 --
 
 insert :: LogMessage -> MessageTree -> MessageTree
-insert = undefined
+insert (Unknown _) messageTree = messageTree
+insert message Leaf = Node Leaf message Leaf
+insert message1@(LogMessage _ time1 _) (Node nl message2@(LogMessage _ time2 _) nr)
+    | time1 < time2 = Node (insert message1 nl) message2 nr
+    | otherwise = Node nl message2 (insert message1 nr)
+insert _ _ = undefined
 
 ----------------------------------------------------------------------
 -- Exercise 3
@@ -52,7 +65,8 @@ insert = undefined
 --
 
 build :: [LogMessage] -> MessageTree
-build = undefined
+build [] = Leaf
+build (logMessage:logs) = insert logMessage (build logs) 
 
 ----------------------------------------------------------------------
 -- Exercise 4
@@ -64,7 +78,8 @@ build = undefined
 --
 
 inOrder :: MessageTree -> [LogMessage]
-inOrder = undefined
+inOrder Leaf = []
+inOrder (Node lTree message rTree) = inOrder lTree ++ [message] ++ inOrder rTree
 
 ----------------------------------------------------------------------
 -- Exercise 5
@@ -76,7 +91,19 @@ inOrder = undefined
 --
 
 whatWentWrong :: [LogMessage] -> [String]
-whatWentWrong = undefined
+whatWentWrong messages = map getLogMessageText (inOrder (build (filter isErrorFifty messages)))
+
+getLogMessageText :: LogMessage -> String
+getLogMessageText (LogMessage _ _ text) = text
+getLogMessageText (Unknown text) = text 
+
+isErrorFifty :: LogMessage -> Bool
+isErrorFifty logMessage = isErrorLevel logMessage 50
+
+isErrorLevel :: LogMessage -> Int -> Bool
+isErrorLevel (LogMessage (Error code) _ _) level
+    | code >= level = True
+isErrorLevel _ _ = False
 
 ----------------------------------------------------------------------
 -- Exercise 6 (Optional)
