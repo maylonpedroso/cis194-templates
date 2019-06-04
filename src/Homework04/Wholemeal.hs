@@ -35,10 +35,10 @@ fun2 n
 -- False
 
 fun1' :: [Integer] -> Integer
-fun1' = undefined
+fun1' = product . map (subtract 2) . filter even
 
 fun2' :: Integer -> Integer
-fun2' = undefined
+fun2' = sum . filter even . takeWhile (>1) . iterate (\n -> if even n then n `div` 2 else n*3+1)
 
 ----------------------------------------------------------------------
 -- Exercise 2
@@ -49,8 +49,18 @@ data Tree a =
   | Node Integer (Tree a) a (Tree a)
     deriving (Show, Eq)
 
+insertValue :: Tree a -> (Int, a) -> Tree a
+insertValue Leaf (_, v) = Node 0 Leaf v Leaf
+insertValue (Node _ l n r) (i, v)
+  | even i    = Node (x+1) l n node
+  | otherwise = Node (x+1) node n r
+    where subtree = if even i then r else l
+          node = insertValue subtree (i `div` 2, v)
+          Node x _ _ _ = node    
+
 foldTree :: [a] -> Tree a
-foldTree = undefined
+foldTree = foldl insertValue Leaf . zip [1..]
+
 
 ----------------------------------------------------------------------
 -- Exercise 3
@@ -63,16 +73,23 @@ foldTree = undefined
 -- >>> xor [False, True, False, False, True]
 -- False
 
+xor' :: Bool -> Bool -> Bool
+xor' False False = False
+xor' a b = a /= b
+
 xor :: [Bool] -> Bool
-xor = undefined
+xor = foldl xor' False
 
 -- |
 --
 -- >>> map' (+1) [1,2,3]
 -- [2,3,4]
 
+transform' :: (a -> b) -> a -> [b] -> [b]
+transform' f x l = f x : l  
+
 map' :: (a -> b) -> [a] -> [b]
-map' = undefined
+map' f = foldr (transform' f) []
 
 -- Optional
 
