@@ -110,6 +110,23 @@ myFoldl = undefined
 -- Exercise 4
 ----------------------------------------------------------------------
 
+-- |
+--
+-- >>> sieveSundaram 0
+-- []
+-- >>> sieveSundaram 1
+-- [3]
+-- >>> sieveSundaram 2
+-- [3,5]
+-- >>> sieveSundaram 3
+-- [3,5,7]
+-- >>> sieveSundaram 4
+-- [3,5,7]
+-- >>> sieveSundaram 5
+-- [3,5,7,11]
+-- >>> sieveSundaram 10
+-- [3,5,7,11,13,17,19]
+
 sieveSundaram :: Integer -> [Integer]
 sieveSundaram n = map (\x -> x*2+1) (filter validInt [1..n])
 
