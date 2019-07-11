@@ -12,7 +12,7 @@ module Homework05.Calc where
 
 import Homework05.ExprT
 import Homework05.Parser
-import Homework05.StackVM
+import qualified Homework05.StackVM as VM
 import qualified Data.Map as M
 
 ----------------------------------------------------------------------
@@ -25,15 +25,19 @@ import qualified Data.Map as M
 -- True
 
 eval :: ExprT -> Integer
-eval = undefined
+eval (Lit a)   = a
+eval (Add a b) = (eval a) + (eval b)
+eval (Mul a b) = (eval a) * (eval b)
 
-
+eval' :: Maybe ExprT -> Maybe Integer
+eval' Nothing  = Nothing
+eval' (Just a) = Just (eval a)
 ----------------------------------------------------------------------
 -- Exercise 2
 ----------------------------------------------------------------------
 
 evalStr :: String -> Maybe Integer
-evalStr = undefined
+evalStr = eval' . parseExp Lit Add Mul
 
 
 ----------------------------------------------------------------------
@@ -45,6 +49,16 @@ evalStr = undefined
 -- >>> reify $ mul (add (lit 2) (lit 3)) (lit 4)
 -- Mul (Add (Lit 2) (Lit 3)) (Lit 4)
 
+class Expr a where
+    lit :: Integer -> a
+    add :: a -> a -> a
+    mul :: a -> a -> a
+
+instance Expr ExprT where
+    lit = Lit
+    mul = Mul
+    add = Add
+
 reify :: ExprT -> ExprT
 reify = id
 
@@ -52,14 +66,29 @@ reify = id
 -- Exercise 4
 ----------------------------------------------------------------------
 
-newtype MinMax  = MinMax Integer deriving (Eq, Show)
-newtype Mod7    = Mod7 Integer deriving (Eq, Show)
+newtype MinMax  = MinMax Integer deriving (Eq, Show, Ord)
+newtype Mod7    = Mod7 Integer deriving (Eq, Show, Ord)
+
+instance Expr Bool where
+    lit = (>0)
+    add = (||)
+    mul = (&&)
+
+instance Expr MinMax where
+    lit = MinMax
+    add = max 
+    mul = min
+
+instance Expr Mod7 where
+    lit a = Mod7 (a `mod` 7)
+    add (Mod7 a) (Mod7 b) = lit (a + b)
+    mul (Mod7 a) (Mod7 b) = lit (a * b)
 
 ----------------------------------------------------------------------
 -- Exercise 5 (do this OR exercise 6)
 ----------------------------------------------------------------------
 
-compile :: String -> Maybe Program
+compile :: String -> Maybe VM.Program
 compile = undefined
 
 

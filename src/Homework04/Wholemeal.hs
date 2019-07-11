@@ -37,8 +37,13 @@ fun2 n
 fun1' :: [Integer] -> Integer
 fun1' = product . map (subtract 2) . filter even
 
+fun2Helper :: Integer -> Integer
+fun2Helper n
+  | even    n = n `div` 2
+  | otherwise = 3 * n + 1
+
 fun2' :: Integer -> Integer
-fun2' = sum . filter even . takeWhile (>1) . iterate (\n -> if even n then n `div` 2 else n*3+1)
+fun2' = sum . filter even . takeWhile (>1) . iterate fun2Helper
 
 ----------------------------------------------------------------------
 -- Exercise 2
@@ -93,6 +98,11 @@ map' f = foldr (transform' f) []
 
 -- Optional
 
+-- reverse :: [a] -> [a]
+-- reverse []   = []
+-- reverse x:xs = xs ++ [x]
+
+
 myFoldl :: (a -> b -> a) -> a -> [b] -> a
 myFoldl = undefined
 
@@ -100,5 +110,32 @@ myFoldl = undefined
 -- Exercise 4
 ----------------------------------------------------------------------
 
+-- |
+--
+-- >>> sieveSundaram 0
+-- []
+-- >>> sieveSundaram 1
+-- [3]
+-- >>> sieveSundaram 2
+-- [3,5]
+-- >>> sieveSundaram 3
+-- [3,5,7]
+-- >>> sieveSundaram 4
+-- [3,5,7]
+-- >>> sieveSundaram 5
+-- [3,5,7,11]
+-- >>> sieveSundaram 10
+-- [3,5,7,11,13,17,19]
+
 sieveSundaram :: Integer -> [Integer]
-sieveSundaram = undefined
+sieveSundaram n = map (\x -> x*2+1) (filter validInt [1..n])
+
+validInt :: Integer -> Bool
+validInt n = all (\v -> v /= n) (map operation (combine' x x))
+    where x = n `div` 2
+
+operation :: (Integer, Integer) -> Integer
+operation (a, b) = a + b + 2 * a * b 
+
+combine' :: Integer -> Integer -> [(Integer, Integer)]
+combine' xs ys = [(x,y) | x <- [1..xs], y <- [1..ys], x <= y]
