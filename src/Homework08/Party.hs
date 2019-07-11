@@ -15,32 +15,43 @@ import Data.Tree
 ----------------------------------------------------------------------
 
 glCons :: Employee -> GuestList -> GuestList
-glCons = undefined
+glCons employee (GL list fun) = GL (list++[employee]) (fun + (empFun employee)) 
+
+instance Monoid GuestList where
+    mempty = GL [] 0
+    (GL l1 f1) `mappend` (GL l2 f2) = GL (l1 ++ l2) (f1 + f2) 
 
 moreFun :: GuestList -> GuestList -> GuestList
-moreFun = undefined
+moreFun l1 l2 = if l1 > l2 then l1 else l2
 
 
 ----------------------------------------------------------------------
 -- Exercise 2
 ----------------------------------------------------------------------
 
-
+treeFold :: (a -> [Tree a] -> b) -> Tree a -> b
+treeFold func (Node value list) = func value list
 
 ----------------------------------------------------------------------
 -- Exercise 3
 ----------------------------------------------------------------------
 
 nextLevel :: Employee -> [(GuestList, GuestList)] -> (GuestList, GuestList)
-nextLevel = undefined
+nextLevel bob list = (glCons bob (mconcat (map snd list)), mconcat (map fst list))
 
 
 ----------------------------------------------------------------------
 -- Exercise 4
 ----------------------------------------------------------------------
 
+maxFunTuple :: (GuestList, GuestList) -> GuestList
+maxFunTuple (a, b) = moreFun a b
+
+processNode :: Tree Employee -> (GuestList, GuestList)
+processNode (Node employee list) = nextLevel employee $ map processNode list
+
 maxFun :: Tree Employee -> GuestList
-maxFun = undefined
+maxFun tree = maxFunTuple $ processNode tree
 
 
 ----------------------------------------------------------------------
