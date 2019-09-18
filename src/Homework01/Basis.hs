@@ -23,12 +23,12 @@ module Homework01.Basis where
 toDigits :: Integer -> [Integer]
 toDigits n
   | n <= 0 = []
-  | otherwise = toDigits(n `div` 10) ++ [n `mod` 10]
+  | otherwise = toDigits (n `div` 10) ++ [n `mod` 10]
 
 
 toDigitsRev :: [Integer] -> [Integer]
 toDigitsRev [] = []
-toDigitsRev (e:l) = toDigitsRev(l) ++ [e]
+toDigitsRev (e:l) = toDigitsRev l ++ [e]
 
 
 ----------------------------------------------------------------------
@@ -45,7 +45,7 @@ toDigitsRev (e:l) = toDigitsRev(l) ++ [e]
 doubleEveryOther :: [Integer] -> [Integer]
 doubleEveryOther [] = []
 doubleEveryOther (x:[]) = [x]
-doubleEveryOther (x:y:l) = x:y*2:doubleEveryOther(l)
+doubleEveryOther (x:y:l) = x : y*2 : doubleEveryOther l
 
 ----------------------------------------------------------------------
 -- Exercise 3
@@ -58,7 +58,7 @@ doubleEveryOther (x:y:l) = x:y*2:doubleEveryOther(l)
 
 sumDigits :: [Integer] -> Integer
 sumDigits [] = 0
-sumDigits (x:l) = sum(toDigits x) + sumDigits(l)
+sumDigits (x:l) = sum (toDigits x) + sumDigits l
 
 ----------------------------------------------------------------------
 -- Exercise 4
@@ -72,7 +72,7 @@ sumDigits (x:l) = sum(toDigits x) + sumDigits(l)
 -- False
 
 validate :: Integer -> Bool
-validate n = 0 == sumDigits(doubleEveryOther(toDigitsRev(toDigits(n)))) `mod` 10
+validate = (== 0) . flip mod 10 . sumDigits . doubleEveryOther . toDigitsRev . toDigits
 
 ----------------------------------------------------------------------
 -- Exercise 5
@@ -97,4 +97,4 @@ hanoi n a b c = hanoi (n-1) a c b ++ [(a, b)] ++ hanoi (n-1) c b a
 hanoi4 :: Integer -> Peg -> Peg -> Peg -> Peg -> [Move]
 hanoi4 0 a b c d = []
 hanoi4 1 a b c d = [(a, b)]
-hanoi4 n a b c d = hanoi4 (n-2) a d b c ++ [(a, c), (a, b), (b, c)] ++ hanoi4 (n-2) d b a c
+hanoi4 n a b c d = hanoi4 (n-2) a d b c ++ [(a, c), (a, b), (c, b)] ++ hanoi4 (n-2) d b a c
