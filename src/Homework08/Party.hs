@@ -26,8 +26,8 @@ instance Monoid GuestList where
     mempty = GL [] 0
     mappend = (<>) 
 
-moreFun :: (GuestList, GuestList) -> GuestList
-moreFun (l1, l2) = if l1 > l2 then l1 else l2
+moreFun :: GuestList -> GuestList -> GuestList
+moreFun l1 l2 = if l1 > l2 then l1 else l2
 
 
 ----------------------------------------------------------------------
@@ -42,7 +42,7 @@ treeFold func (Node value list) = func value (map (treeFold func) list)
 ----------------------------------------------------------------------
 
 nextLevel :: Employee -> [(GuestList, GuestList)] -> (GuestList, GuestList)
-nextLevel bob list = (glCons bob (mconcat (map snd list)), mconcat (map moreFun list))
+nextLevel bob list = (glCons bob (mconcat (map snd list)), mconcat (map (uncurry moreFun) list))
 
 
 ----------------------------------------------------------------------
@@ -50,7 +50,7 @@ nextLevel bob list = (glCons bob (mconcat (map snd list)), mconcat (map moreFun 
 ----------------------------------------------------------------------
 
 maxFun :: Tree Employee -> GuestList
-maxFun tree = moreFun $ treeFold nextLevel tree
+maxFun tree = uncurry moreFun $ treeFold nextLevel tree
 
 ----------------------------------------------------------------------
 -- Exercise 5

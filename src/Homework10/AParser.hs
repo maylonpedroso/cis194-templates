@@ -71,11 +71,13 @@ first g (x, s) = (g x, s)
 
 instance Applicative Parser where
   pure :: a -> Parser a
-  pure x = Parser (\s -> Just (x, s))
+  pure x = Parser (\s -> Just (x , s))
 
   (<*>) :: Parser (a -> b) -> Parser a -> Parser b
-  (<*>) (Parser g) f = fmap g f
-
+  Parser f1 <*> p2 = Parser $ \s1 ->
+    case f1 s1 of
+      Nothing      -> Nothing
+      Just (x, s2) -> runParser (x <$> p2) s2
 
 ----------------------------------------------------------------------
 -- Exercise 3
@@ -89,7 +91,7 @@ instance Applicative Parser where
 -- Nothing
 
 abParser :: Parser (Char, Char)
-abParser = undefined
+abParser = (,) <$> char 'a' <*> char 'b'
 
 
 -- |
@@ -100,7 +102,7 @@ abParser = undefined
 -- Nothing
 
 abParser_ :: Parser ()
-abParser_ = undefined
+abParser_ = (\_ _ -> ()) <$> char 'a' <*> char 'b'
 
 
 -- |
@@ -109,8 +111,8 @@ abParser_ = undefined
 -- Just ([12,34],"")
 
 intPair :: Parser [Integer]
-intPair = undefined
-
+intPair = join <$> posInt <*> char ' ' <*> posInt
+  where join a _ b = [a, b]
 
 ----------------------------------------------------------------------
 -- Exercise 4
@@ -118,10 +120,13 @@ intPair = undefined
 
 instance Alternative Parser where
   empty :: Parser a
-  empty = undefined
+  empty = Parser $ \_ -> Nothing
 
   (<|>) :: Parser a -> Parser a -> Parser a
-  (<|>) = undefined
+  Parser f1 <|> Parser f2 = Parser $ \s ->
+    case f1 s of
+      Nothing -> f2 s
+      Just x  -> Just x 
 
 
 ----------------------------------------------------------------------
@@ -138,4 +143,5 @@ instance Alternative Parser where
 -- Nothing
 
 intOrUppercase :: Parser ()
-intOrUppercase = undefined
+intOrUppercase = (f <$> posInt) <|> (f <$> satisfy isUpper)
+  where f _ = ()
